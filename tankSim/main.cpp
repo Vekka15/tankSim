@@ -88,15 +88,8 @@ void displayFrame() {
 
 	 glm::vec3 cubePositions[] = {
         glm::vec3( 0.0f,  0.0f,  0.0f),
-        glm::vec3( 2.0f,  5.0f, -15.0f),
-        glm::vec3(-1.5f, -2.2f, -2.5f),
-        glm::vec3(-3.8f, -2.0f, -12.3f),
-        glm::vec3( 2.4f, -0.4f, -3.5f),
-        glm::vec3(-1.7f,  3.0f, -7.5f),
-        glm::vec3( 1.3f, -2.0f, -2.5f),
-        glm::vec3( 1.5f,  2.0f, -2.5f),
-        glm::vec3( 1.5f,  0.2f, -1.5f),
-        glm::vec3(-1.3f,  1.0f, -1.5f)
+        glm::vec3( 1.0f,  0.0f, -0.0f)
+
     };
 
 	 GLuint VBO, VAO;
@@ -174,13 +167,12 @@ void displayFrame() {
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
 	glBindVertexArray(VAO);
-	for (GLuint i = 0; i < 10; i++)
+	for (GLuint i = 0; i < 2; i++)
         {
             // Calculate the model matrix for each object and pass it to shader before drawing
             glm::mat4 model;
             model = glm::translate(model, cubePositions[i]);
-            GLfloat angle = 20.0f * i;
-            model = glm::rotate(model, angle, glm::vec3(1.0f, 0.3f, 0.5f));
+            model = glm::rotate(model, 40.0f, glm::vec3(1.0f, 0.0f, 0.0f));
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
             glDrawArrays(GL_TRIANGLES, 0, 6);
