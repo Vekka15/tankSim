@@ -63,7 +63,7 @@ int main (int argc, char** argv) {
 	Shader shaderProgram("vshader.txt","fshader.txt");
 	Model ourModel("tank.obj");
 		// tutaj renderowanie
-	/*
+	
 	//koordynaty wierzcholkow
 	GLfloat vertices[] = {
         -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
@@ -73,20 +73,16 @@ int main (int argc, char** argv) {
         -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
         -0.5f, -0.5f, -0.5f,  0.0f, 0.0f
     };
-
 	 glm::vec3 cubePositions[] = {
         glm::vec3( 0.0f,  0.0f,  0.0f),
 		 glm::vec3( 1.0f,  0.0f, -0.0f),
 		glm::vec3( 2.0f,  0.0f, -0.0f)
-
     };
-
 	 GLuint VBO, VAO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     // Bind the Vertex Array Object first, then bind and set vertex buffer(s) and attribute pointer(s).
     glBindVertexArray(VAO);
-
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
    // glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
@@ -95,7 +91,6 @@ int main (int argc, char** argv) {
     glEnableVertexAttribArray(0);
 	glVertexAttribPointer(2, 2, GL_FLOAT,GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(2); 
-
 	glBindVertexArray(0); // Unbind VAO
 		// TEKSTURY
 	   // Load and create a texture 
@@ -108,41 +103,33 @@ int main (int argc, char** argv) {
     // Set texture filtering parameters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
 	int width, height;
     unsigned char* image = SOIL_load_image("grass.png", &width, &height, 0, SOIL_LOAD_RGB);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
     glGenerateMipmap(GL_TEXTURE_2D);
     SOIL_free_image_data(image);
-    glBindTexture(GL_TEXTURE_2D, 0); // Unbind texture when done, so we won't accidentily mess up our texture.*/
+    glBindTexture(GL_TEXTURE_2D, 0); // Unbind texture when done, so we won't accidentily mess up our texture.
 
 	while (!glfwWindowShouldClose(window))
     {
 		
 			// Calculate deltatime of current frame
-       /* GLfloat currentFrame = glfwGetTime();
+        GLfloat currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
-
         // Check if any events have been activiated (key pressed, mouse moved etc.) and call corresponding response functions
         glfwPollEvents();
         do_movement();
-
         // Render
         // Clear the colorbuffer
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-
-
 		glBindVertexArray(0); // Unbind VAO
 		glBindTexture(GL_TEXTURE_2D, texture); //przypisanie tekstur
 		shaderProgram.Use();
-
 		glm::mat4 view;
         glm::mat4 projection;
 	//	model = glm::rotate(model, 40.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-
 		view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 		        view = glm::translate(view, glm::vec3(-5.0f, -3.0f, -7.0f));
 		view = glm::rotate(view, -45.3f, glm::vec3(1.0f, 0.0f, 0.0f));
@@ -156,7 +143,6 @@ int main (int argc, char** argv) {
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
         // Note: currently we set the projection matrix each frame, but since the projection matrix rarely changes it's often best practice to set it outside the main loop only once.
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
-
 		glBindVertexArray(VAO);
 		for( GLuint j=0; j<10; j++ ){
 			for (GLuint i = 0; i < 10; i++)
@@ -166,14 +152,19 @@ int main (int argc, char** argv) {
 				model = glm::translate(model, glm::vec3((float)i, (float)j, 0.0f));
 				//model = glm::rotate(model, 30.0f, glm::vec3(1.0f, 0.0f, 0.0f));
 				glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-
 				glDrawArrays(GL_TRIANGLES, 0, 6);
 			}
 		}
+		glm::mat4 model;
+		 model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f)); // Translate it down a bit so it's at the center of the scene
+		 model = glm::rotate(model, -30.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	// It's a bit too big for our scene, so scale it down
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+        ourModel.Draw(shaderProgram);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		glBindVertexArray(0); 
-		glfwSwapBuffers(window);*/
-		GLfloat currentFrame = glfwGetTime();
+		glfwSwapBuffers(window);
+	/*	GLfloat currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
@@ -200,7 +191,7 @@ int main (int argc, char** argv) {
         ourModel.Draw(shaderProgram);
 
         // Swap the buffers
-        glfwSwapBuffers(window);
+        glfwSwapBuffers(window);*/
 	}
 	glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
