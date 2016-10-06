@@ -88,7 +88,8 @@ void displayFrame() {
 
 	 glm::vec3 cubePositions[] = {
         glm::vec3( 0.0f,  0.0f,  0.0f),
-        glm::vec3( 1.0f,  0.0f, -0.0f)
+		 glm::vec3( 1.0f,  0.0f, -0.0f),
+		glm::vec3( 2.0f,  0.0f, -0.0f)
 
     };
 
@@ -154,7 +155,8 @@ void displayFrame() {
 	glm::mat4 view;
         glm::mat4 projection;
 	//	model = glm::rotate(model, 40.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-        view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+        view = glm::translate(view, glm::vec3(-5.0f, 0.0f, -5.0f));
+		view = glm::rotate(view, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
         projection = glm::perspective(45.0f, 800.0f / 800.0f, 0.1f, 100.0f);
         // Get their uniform location
         GLint modelLoc = glGetUniformLocation(shaderProgram.Program, "model");
@@ -167,16 +169,18 @@ void displayFrame() {
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
 	glBindVertexArray(VAO);
-	for (GLuint i = 0; i < 2; i++)
+	for( GLuint j=0; j<10; j++ ){
+	for (GLuint i = 0; i < 10; i++)
         {
             // Calculate the model matrix for each object and pass it to shader before drawing
             glm::mat4 model;
-            model = glm::translate(model, cubePositions[i]);
-            model = glm::rotate(model, 40.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+            model = glm::translate(model, glm::vec3((float)i, (float)j, 0.0f));
+			//model = glm::rotate(model, 30.0f, glm::vec3(1.0f, 0.0f, 0.0f));
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
             glDrawArrays(GL_TRIANGLES, 0, 6);
         }
+	}
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 	glBindVertexArray(0); 
 	glutSwapBuffers();
