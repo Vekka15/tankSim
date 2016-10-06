@@ -8,6 +8,13 @@
 #include <stdio.h>
 #include "shaderprogram.h"
 
+#define CAMERA_START_POSITION_X 0.5f
+#define CAMERA_START_POSITION_Y 0.0f
+#define CAMERA_START_POSITION_Z 24.0f
+
+float rotationAngleX = CAMERA_START_POSITION_X;
+float rotationAngleY = CAMERA_START_POSITION_Y;
+
 
 /*
 void assignVBOtoAttribute(GLuint bufVBO, int variableSize, GLfloat vertices) {
@@ -155,8 +162,9 @@ void displayFrame() {
 	glm::mat4 view;
         glm::mat4 projection;
 	//	model = glm::rotate(model, 40.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-        view = glm::translate(view, glm::vec3(-5.0f, 0.0f, -5.0f));
-		view = glm::rotate(view, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+     //   view = glm::translate(view, glm::vec3(-5.0f, 0.0f, -5.0f));
+	//	view = glm::rotate(view, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+		view = glm::lookAt(glm::vec3(0.0f, 0.0f, -5.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         projection = glm::perspective(45.0f, 800.0f / 800.0f, 0.1f, 100.0f);
         // Get their uniform location
         GLint modelLoc = glGetUniformLocation(shaderProgram.Program, "model");
@@ -174,7 +182,9 @@ void displayFrame() {
         {
             // Calculate the model matrix for each object and pass it to shader before drawing
             glm::mat4 model;
-            model = glm::translate(model, glm::vec3((float)i, (float)j, 0.0f));
+            	model = glm::rotate(glm::mat4(1.0f), rotationAngleX, glm::vec3(1, 0, 0));
+			model = glm::rotate(model, rotationAngleY, glm::vec3(0, 1, 0)); 
+			model = glm::translate(model, glm::vec3((float)i, 0.0f, (float)j));
 			//model = glm::rotate(model, 30.0f, glm::vec3(1.0f, 0.0f, 0.0f));
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
