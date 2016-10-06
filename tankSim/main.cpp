@@ -63,7 +63,7 @@ int main (int argc, char** argv) {
 	Shader shaderProgram("vshader.txt","fshader.txt");
 	Model ourModel("tank.obj");
 		// tutaj renderowanie
-
+	/*
 	//koordynaty wierzcholkow
 	GLfloat vertices[] = {
         -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
@@ -114,12 +114,13 @@ int main (int argc, char** argv) {
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
     glGenerateMipmap(GL_TEXTURE_2D);
     SOIL_free_image_data(image);
-    glBindTexture(GL_TEXTURE_2D, 0); // Unbind texture when done, so we won't accidentily mess up our texture.
+    glBindTexture(GL_TEXTURE_2D, 0); // Unbind texture when done, so we won't accidentily mess up our texture.*/
+
 	while (!glfwWindowShouldClose(window))
     {
 		
 			// Calculate deltatime of current frame
-        GLfloat currentFrame = glfwGetTime();
+       /* GLfloat currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
@@ -171,7 +172,35 @@ int main (int argc, char** argv) {
 		}
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		glBindVertexArray(0); 
-		glfwSwapBuffers(window);
+		glfwSwapBuffers(window);*/
+		GLfloat currentFrame = glfwGetTime();
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+
+        // Check and call events
+        glfwPollEvents();
+        //Do_Movement();
+
+        // Clear the colorbuffer
+        glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        shaderProgram.Use();   // <-- Don't forget this one!
+        // Transformation matrices
+        glm::mat4 projection = glm::perspective(45.0f, 1200.0f / 1000.0f, 0.1f, 100.0f);
+         glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram.Program, "view"), 1, GL_FALSE, glm::value_ptr(view));
+
+        // Draw the loaded model
+        glm::mat4 model;
+        model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f)); // Translate it down a bit so it's at the center of the scene
+        model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	// It's a bit too big for our scene, so scale it down
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+        ourModel.Draw(shaderProgram);
+
+        // Swap the buffers
+        glfwSwapBuffers(window);
 	}
 	glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
