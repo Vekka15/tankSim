@@ -94,7 +94,6 @@ public:
     // Uses the current shader
     void Use() 
     { 
-		std::cout << "shader start" << std::endl;
         glUseProgram(this->Program); 
     }
 };
