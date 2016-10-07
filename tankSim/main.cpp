@@ -63,7 +63,7 @@ int main (int argc, char** argv) {
     glEnable(GL_DEPTH_TEST);
 
 	Shader shaderProgram = Shader("vshader.txt","fshader.txt");
-		Model ourModel = Model("drzewo.obj");
+		Model ourModel = Model("obiekty/tank5.obj");
 		// tutaj renderowanie
 	
 	//koordynaty wierzcholkow
@@ -160,6 +160,7 @@ int main (int argc, char** argv) {
 		}
 		glBindVertexArray(0);
 		  glBindTexture(GL_TEXTURE_2D, 0); 
+
 			glm::mat4 modelTank;
 			modelTank = glm::translate(modelTank, startPosition);
 		 modelTank = glm::rotate(modelTank, -30.0f, glm::vec3(1.0f, 0.0f, 0.0f));
