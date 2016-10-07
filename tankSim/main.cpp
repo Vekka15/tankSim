@@ -221,19 +221,25 @@ void do_movement()
 {
     // Camera controls
     GLfloat cameraSpeed = 5.0f * deltaTime;
-    if (keys[GLFW_KEY_W])
+    if (keys[GLFW_KEY_W]){
     //    cameraPos += cameraSpeed * cameraFront;
 		//modyfikacja wektora startPosition na polu Z (+ lub -)
 		//	printf("%d", startPosition);
-			startPosition = glm::vec3(startPosition.x,  startPosition.y + 0.1f, startPosition.z);
-    if (keys[GLFW_KEY_S])
+		cameraPos = glm::vec3(cameraPos.x,  cameraPos.y, cameraPos.z - 5.0f);
+			startPosition = glm::vec3(startPosition.x,  min(10.0f, (startPosition.y + 0.1f)), startPosition.z);
+	}
+    if (keys[GLFW_KEY_S]){
 		//modyfikacja wektora startPosition na polu Z (+ lub -)
-     //   cameraPos -= cameraSpeed * cameraFront;
+        cameraPos -= cameraSpeed * cameraFront;
 	startPosition = glm::vec3(startPosition.x,  startPosition.y - 0.1f, startPosition.z);
-    if (keys[GLFW_KEY_A])
+	}
+    if (keys[GLFW_KEY_A]){
 		//modyfikacja wektora startPosition na polu X (+ lub -)
         startPosition = glm::vec3(startPosition.x - 0.1f, startPosition.y, 0.0f);
-    if (keys[GLFW_KEY_D])
+	}
+    if (keys[GLFW_KEY_D]){
 		//modyfikacja wektora startPosition na polu X (+ lub -)
+			cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
         startPosition = glm::vec3(startPosition.x + 0.1f, startPosition.y, 0.0f);
+	}
 }
