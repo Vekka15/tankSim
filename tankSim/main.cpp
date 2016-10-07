@@ -29,10 +29,12 @@ bool keys[1024];
 GLfloat deltaTime = 0.0f;	// Time between current frame and last frame
 GLfloat lastFrame = 0.0f;  	// Time of last frame
 
+glm::vec3 startPosition   = glm::vec3(2.0f, 0.0f, 0.0f);
 
+glm::mat4 tankObj;
 
-
-
+Shader shaderProgram();
+Model ourModel();
 
 int main (int argc, char** argv) {
 	// Init GLFW
@@ -60,8 +62,8 @@ int main (int argc, char** argv) {
 
     glEnable(GL_DEPTH_TEST);
 
-	Shader shaderProgram("vshader.txt","fshader.txt");
-	Model ourModel("tank.obj");
+	Shader shaderProgram = Shader("vshader.txt","fshader.txt");
+	Model ourModel = Model("tank.obj");
 		// tutaj renderowanie
 	
 	//koordynaty wierzcholkow
@@ -155,11 +157,12 @@ int main (int argc, char** argv) {
 				glDrawArrays(GL_TRIANGLES, 0, 6);
 			}
 		}
-		glm::mat4 model;
-		 model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f)); // Translate it down a bit so it's at the center of the scene
-		 model = glm::rotate(model, -30.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-        model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	// It's a bit too big for our scene, so scale it down
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+			glm::mat4 modelTank;
+			modelTank = glm::translate(modelTank, startPosition);
+		 modelTank = glm::rotate(modelTank, -30.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+        modelTank = glm::scale(modelTank, glm::vec3(0.2f, 0.2f, 0.2f));	// It's a bit too big for our scene, so scale it down
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram.Program, "model"), 1, GL_FALSE, glm::value_ptr(modelTank));
+		tankObj = modelTank;
         ourModel.Draw(shaderProgram);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		glBindVertexArray(0); 
@@ -219,11 +222,18 @@ void do_movement()
     // Camera controls
     GLfloat cameraSpeed = 5.0f * deltaTime;
     if (keys[GLFW_KEY_W])
-        cameraPos += cameraSpeed * cameraFront;
+    //    cameraPos += cameraSpeed * cameraFront;
+		//modyfikacja wektora startPosition na polu Z (+ lub -)
+		//	printf("%d", startPosition);
+			startPosition = glm::vec3(startPosition.x,  startPosition.y + 0.1f, startPosition.z);
     if (keys[GLFW_KEY_S])
-        cameraPos -= cameraSpeed * cameraFront;
+		//modyfikacja wektora startPosition na polu Z (+ lub -)
+     //   cameraPos -= cameraSpeed * cameraFront;
+	startPosition = glm::vec3(startPosition.x,  startPosition.y - 0.1f, startPosition.z);
     if (keys[GLFW_KEY_A])
-        cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+		//modyfikacja wektora startPosition na polu X (+ lub -)
+        startPosition = glm::vec3(startPosition.x - 0.1f, startPosition.y, 0.0f);
     if (keys[GLFW_KEY_D])
-        cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+		//modyfikacja wektora startPosition na polu X (+ lub -)
+        startPosition = glm::vec3(startPosition.x + 0.1f, startPosition.y, 0.0f);
 }
