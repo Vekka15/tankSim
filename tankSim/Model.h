@@ -173,6 +173,7 @@ private:
             {   // If texture hasn't been loaded already, load it
                 Texture texture;
                 texture.id = TextureFromFile(str.C_Str(), this->directory);
+				cout << texture.id << endl;
                 texture.type = typeName;
                 texture.path = str;
                 textures.push_back(texture);
@@ -191,6 +192,7 @@ GLint TextureFromFile(const char* path, string directory)
      //Generate texture ID and load texture data 
     string filename = string(path);
     filename = directory + '/' + filename;
+	cout << filename << endl;
     GLuint textureID;
     glGenTextures(1, &textureID);
     int width,height;

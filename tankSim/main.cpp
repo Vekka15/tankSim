@@ -15,7 +15,7 @@
 #include "Mesh.h"
 const GLuint WIDTH = 1200, HEIGHT = 1000;
 
-GLuint VBO, VAO;
+GLuint VBO, VAO1;
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 void do_movement();
 
@@ -63,7 +63,7 @@ int main (int argc, char** argv) {
     glEnable(GL_DEPTH_TEST);
 
 	Shader shaderProgram = Shader("vshader.txt","fshader.txt");
-	Model ourModel = Model("tank.obj");
+		Model ourModel = Model("drzewo.obj");
 		// tutaj renderowanie
 	
 	//koordynaty wierzcholkow
@@ -80,11 +80,11 @@ int main (int argc, char** argv) {
 		 glm::vec3( 1.0f,  0.0f, -0.0f),
 		glm::vec3( 2.0f,  0.0f, -0.0f)
     };
-	 GLuint VBO, VAO;
-    glGenVertexArrays(1, &VAO);
+	 GLuint VBO, VAO1;
+    glGenVertexArrays(1, &VAO1);
     glGenBuffers(1, &VBO);
     // Bind the Vertex Array Object first, then bind and set vertex buffer(s) and attribute pointer(s).
-    glBindVertexArray(VAO);
+    glBindVertexArray(VAO1);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
    // glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
@@ -93,7 +93,7 @@ int main (int argc, char** argv) {
     glEnableVertexAttribArray(0);
 	glVertexAttribPointer(2, 2, GL_FLOAT,GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(2); 
-	glBindVertexArray(0); // Unbind VAO
+	glBindVertexArray(0); // Unbind VAO1
 		// TEKSTURY
 	   // Load and create a texture 
     GLuint texture;
@@ -114,7 +114,8 @@ int main (int argc, char** argv) {
 
 	while (!glfwWindowShouldClose(window))
     {
-		
+				
+
 			// Calculate deltatime of current frame
         GLfloat currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
@@ -126,7 +127,7 @@ int main (int argc, char** argv) {
         // Clear the colorbuffer
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glBindVertexArray(0); // Unbind VAO
+		glBindVertexArray(0); // Unbind VAO1
 		glBindTexture(GL_TEXTURE_2D, texture); //przypisanie tekstur
 		shaderProgram.Use();
 		glm::mat4 view;
@@ -145,7 +146,7 @@ int main (int argc, char** argv) {
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
         // Note: currently we set the projection matrix each frame, but since the projection matrix rarely changes it's often best practice to set it outside the main loop only once.
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
-		glBindVertexArray(VAO);
+		glBindVertexArray(VAO1);
 		for( GLuint j=0; j<10; j++ ){
 			for (GLuint i = 0; i < 10; i++)
 			{
@@ -157,6 +158,8 @@ int main (int argc, char** argv) {
 				glDrawArrays(GL_TRIANGLES, 0, 6);
 			}
 		}
+		glBindVertexArray(0);
+		  glBindTexture(GL_TEXTURE_2D, 0); 
 			glm::mat4 modelTank;
 			modelTank = glm::translate(modelTank, startPosition);
 		 modelTank = glm::rotate(modelTank, -30.0f, glm::vec3(1.0f, 0.0f, 0.0f));
@@ -164,39 +167,12 @@ int main (int argc, char** argv) {
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram.Program, "model"), 1, GL_FALSE, glm::value_ptr(modelTank));
 		tankObj = modelTank;
         ourModel.Draw(shaderProgram);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-		glBindVertexArray(0); 
+	//	glDrawArrays(GL_TRIANGLES, 0, 6);
+			glBindVertexArray(0);
+		  glBindTexture(GL_TEXTURE_2D, 0);
 		glfwSwapBuffers(window);
-	/*	GLfloat currentFrame = glfwGetTime();
-        deltaTime = currentFrame - lastFrame;
-        lastFrame = currentFrame;
-
-        // Check and call events
-        glfwPollEvents();
-        //Do_Movement();
-
-        // Clear the colorbuffer
-        glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        shaderProgram.Use();   // <-- Don't forget this one!
-        // Transformation matrices
-        glm::mat4 projection = glm::perspective(45.0f, 1200.0f / 1000.0f, 0.1f, 100.0f);
-         glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram.Program, "view"), 1, GL_FALSE, glm::value_ptr(view));
-
-        // Draw the loaded model
-        glm::mat4 model;
-        model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f)); // Translate it down a bit so it's at the center of the scene
-        model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	// It's a bit too big for our scene, so scale it down
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-        ourModel.Draw(shaderProgram);
-
-        // Swap the buffers
-        glfwSwapBuffers(window);*/
 	}
-	glDeleteVertexArrays(1, &VAO);
+	glDeleteVertexArrays(1, &VAO1);
     glDeleteBuffers(1, &VBO);
     // Terminate GLFW, clearing any resources allocated by GLFW.
     glfwTerminate();
@@ -225,12 +201,12 @@ void do_movement()
     //    cameraPos += cameraSpeed * cameraFront;
 		//modyfikacja wektora startPosition na polu Z (+ lub -)
 		//	printf("%d", startPosition);
-		cameraPos = glm::vec3(cameraPos.x,  cameraPos.y, cameraPos.z - 5.0f);
+//		cameraPos = glm::vec3(cameraPos.x,  cameraPos.y, cameraPos.z - 5.0f);
 			startPosition = glm::vec3(startPosition.x,  min(10.0f, (startPosition.y + 0.1f)), startPosition.z);
 	}
     if (keys[GLFW_KEY_S]){
 		//modyfikacja wektora startPosition na polu Z (+ lub -)
-        cameraPos -= cameraSpeed * cameraFront;
+//        cameraPos -= cameraSpeed * cameraFront;
 	startPosition = glm::vec3(startPosition.x,  startPosition.y - 0.1f, startPosition.z);
 	}
     if (keys[GLFW_KEY_A]){
@@ -239,7 +215,7 @@ void do_movement()
 	}
     if (keys[GLFW_KEY_D]){
 		//modyfikacja wektora startPosition na polu X (+ lub -)
-			cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+	//w		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
         startPosition = glm::vec3(startPosition.x + 0.1f, startPosition.y, 0.0f);
 	}
 }
