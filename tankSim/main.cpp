@@ -31,8 +31,8 @@ glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
 GLfloat deltaTime = 0.0f;	// Time between current frame and last frame
 GLfloat lastFrame = 0.0f;  	// Time of last frame
 
-glm::vec3 startPosition   = glm::vec3(10.0f, 0.0f, 0.0f);
-glm::vec3 wiezaPosition   = glm::vec3(10.0f, 0.0f, 0.8f);
+glm::vec3 startPosition   = glm::vec3(30.0f, 2.0f, 0.0f);
+glm::vec3 wiezaPosition   = glm::vec3(30.0f, 2.0f, 0.8f);
 
 glm::mat4 tankObj;
 
@@ -42,6 +42,8 @@ bool keys[1024];
 
 GLfloat wiezaRotate = -30.0f;
 GLfloat tankRotate = -30.0f;
+
+
 
 int main (int argc, char** argv) {
 	// Init GLFW
@@ -142,7 +144,7 @@ int main (int argc, char** argv) {
         glm::mat4 projection;
 	//	model = glm::rotate(model, 40.0f, glm::vec3(1.0f, 0.0f, 0.0f));
 	view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-		        view = glm::translate(view, glm::vec3(-10.0f, -3.0f, -7.0f));
+		        view = glm::translate(view, glm::vec3(-30.0f, -5.0f, -7.0f));
 		view = glm::rotate(view, -45.3f, glm::vec3(1.0f, 0.0f, 0.0f));
 		//view = camera.GetViewMatrix();
         projection = glm::perspective(45.0f, 1200.0f / 1000.0f, 0.1f, 100.0f);
@@ -156,8 +158,8 @@ int main (int argc, char** argv) {
         // Note: currently we set the projection matrix each frame, but since the projection matrix rarely changes it's often best practice to set it outside the main loop only once.
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
 		glBindVertexArray(VAO1);
-		for( GLuint j=0; j<20; j++ ){
-			for (GLuint i = 0; i < 20; i++)
+		for( GLuint j=0; j<30; j++ ){
+			for (GLuint i = 0; i < 60; i++)
 			{
 				// Calculate the model matrix for each object and pass it to shader before drawing
 				glm::mat4 model;
@@ -166,18 +168,7 @@ int main (int argc, char** argv) {
 				glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 				glDrawArrays(GL_TRIANGLES, 0, 6);
 			}
-			
-		glm::mat4 model;
-		model = glm::rotate(model, 90.0f, glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::translate(model, glm::vec3(0.0f, (float)j, 0.0f));
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		glDrawArrays(GL_TRIANGLES, 0, 6);
 		
-		glm::mat4 model2;
-		model2 = glm::rotate(model2, 90.0f, glm::vec3(0.0f, 1.0f, 0.0f));
-		model2 = glm::translate(model2, glm::vec3(10.0f, 0.0f, (float)j));
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model2));
-		glDrawArrays(GL_TRIANGLES, 0, 6);
 		}
 		glBindVertexArray(0);
 		  glBindTexture(GL_TEXTURE_2D, 0); 
