@@ -1,6 +1,7 @@
 ﻿#include <string>
 #include <vector>
 #include "windows.h"
+#include "math.h"
 #include "SOIL.h"
 #include "GL/glew.h"
 #include "GL/glut.h"
@@ -30,8 +31,8 @@ glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
 GLfloat deltaTime = 0.0f;	// Time between current frame and last frame
 GLfloat lastFrame = 0.0f;  	// Time of last frame
 
-glm::vec3 startPosition   = glm::vec3(2.0f, 0.0f, 0.0f);
-glm::vec3 wiezaPosition   = glm::vec3(2.0f, 0.0f, 0.8f);
+glm::vec3 startPosition   = glm::vec3(10.0f, 0.0f, 0.0f);
+glm::vec3 wiezaPosition   = glm::vec3(10.0f, 0.0f, 0.8f);
 
 glm::mat4 tankObj;
 
@@ -40,6 +41,7 @@ Model ourModel();
 bool keys[1024];
 
 GLfloat wiezaRotate = -30.0f;
+GLfloat tankRotate = -30.0f;
 
 int main (int argc, char** argv) {
 	// Init GLFW
@@ -140,7 +142,7 @@ int main (int argc, char** argv) {
         glm::mat4 projection;
 	//	model = glm::rotate(model, 40.0f, glm::vec3(1.0f, 0.0f, 0.0f));
 	view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-		        view = glm::translate(view, glm::vec3(-5.0f, -3.0f, -7.0f));
+		        view = glm::translate(view, glm::vec3(-10.0f, -3.0f, -7.0f));
 		view = glm::rotate(view, -45.3f, glm::vec3(1.0f, 0.0f, 0.0f));
 		//view = camera.GetViewMatrix();
         projection = glm::perspective(45.0f, 1200.0f / 1000.0f, 0.1f, 100.0f);
@@ -154,8 +156,8 @@ int main (int argc, char** argv) {
         // Note: currently we set the projection matrix each frame, but since the projection matrix rarely changes it's often best practice to set it outside the main loop only once.
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
 		glBindVertexArray(VAO1);
-		for( GLuint j=0; j<10; j++ ){
-			for (GLuint i = 0; i < 10; i++)
+		for( GLuint j=0; j<20; j++ ){
+			for (GLuint i = 0; i < 20; i++)
 			{
 				// Calculate the model matrix for each object and pass it to shader before drawing
 				glm::mat4 model;
@@ -183,6 +185,7 @@ int main (int argc, char** argv) {
 			glm::mat4 modelTank;
 			modelTank = glm::translate(modelTank, startPosition);
 		 modelTank = glm::rotate(modelTank, -30.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+		 modelTank = glm::rotate(modelTank, tankRotate, glm::vec3(0.0f, 1.0f, 0.0f));
         modelTank = glm::scale(modelTank, glm::vec3(0.2f, 0.2f, 0.2f));	// It's a bit too big for our scene, so scale it down
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram.Program, "model"), 1, GL_FALSE, glm::value_ptr(modelTank));
 		tankObj = modelTank;
@@ -231,27 +234,34 @@ void do_movement()
 		//modyfikacja wektora startPosition na polu Z (+ lub -)
 		//	printf("%d", startPosition);
 //		cameraPos = glm::vec3(cameraPos.x,  cameraPos.y, cameraPos.z - 5.0f);
-			startPosition = glm::vec3(startPosition.x,  min(10.0f, (startPosition.y + 0.1f)), startPosition.z);
-			wiezaPosition = glm::vec3(wiezaPosition.x,  min(10.0f, (wiezaPosition.y + 0.1f)), wiezaPosition.z);
+		//	startPosition = glm::vec3(startPosition.x,  startPosition.y + 0.01f, startPosition.z);
+		//	wiezaPosition = glm::vec3(wiezaPosition.x,  min(10.0f, (wiezaPosition.y + 0.01f)), wiezaPosition.z);
+		startPosition = glm::vec3(startPosition.x + 0.005f * cosf(tankRotate),  startPosition.y + 0.005f * sinf(tankRotate), startPosition.z );
+		wiezaPosition = glm::vec3(startPosition.x,  startPosition.y, wiezaPosition.z);
 	}
     if (keys[GLFW_KEY_S]){
 		//modyfikacja wektora startPosition na polu Z (+ lub -)
 //        cameraPos -= cameraSpeed * cameraFront;
-	startPosition = glm::vec3(startPosition.x,  startPosition.y - 0.1f, startPosition.z);
-	wiezaPosition = glm::vec3(wiezaPosition.x,  wiezaPosition.y - 0.1f, wiezaPosition.z);
+	startPosition = glm::vec3(startPosition.x - 0.005f * cosf(tankRotate),  startPosition.y - 0.005f * sinf(tankRotate), startPosition.z );
+		wiezaPosition = glm::vec3(startPosition.x,  startPosition.y, wiezaPosition.z);
 	}
     if (keys[GLFW_KEY_A]){
 		//modyfikacja wektora startPosition na polu X (+ lub -)
-        startPosition = glm::vec3(startPosition.x - 0.1f, startPosition.y, 0.0f);
-		wiezaPosition = glm::vec3(wiezaPosition.x - 0.1f, wiezaPosition.y, wiezaPosition.z);
+       // startPosition = glm::vec3(startPosition.x - 0.01f, startPosition.y, 0.0f);
+		//wiezaPosition = glm::vec3(wiezaPosition.x - 0.01f, wiezaPosition.y, wiezaPosition.z);
+		tankRotate = tankRotate + 0.01f;
 	}
     if (keys[GLFW_KEY_D]){
 		//modyfikacja wektora startPosition na polu X (+ lub -)
 	//w		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-        startPosition = glm::vec3(startPosition.x + 0.1f, startPosition.y, 0.0f);
-		wiezaPosition = glm::vec3(wiezaPosition.x + 0.1f, wiezaPosition.y, wiezaPosition.z);
+     //   startPosition = glm::vec3(startPosition.x + 0.01f, startPosition.y, 0.0f);
+	//	wiezaPosition = glm::vec3(wiezaPosition.x + 0.01f, wiezaPosition.y, wiezaPosition.z);
+		tankRotate = tankRotate - 0.01f;
 	}
 	if (keys[GLFW_KEY_LEFT]) {
-		wiezaRotate = wiezaRotate + 0.1f;
+		wiezaRotate = wiezaRotate + 0.01f;
+	}
+	if (keys[GLFW_KEY_RIGHT]) {
+		wiezaRotate = wiezaRotate - 0.01f;
 	}
 }
