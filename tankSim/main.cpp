@@ -39,6 +39,8 @@ Shader shaderProgram();
 Model ourModel();
 bool keys[1024];
 
+GLfloat wiezaRotate = -30.0f;
+
 int main (int argc, char** argv) {
 	// Init GLFW
     glfwInit();
@@ -190,6 +192,7 @@ int main (int argc, char** argv) {
 			glm::mat4 modelWieza;
 			modelWieza = glm::translate(modelWieza, wiezaPosition);
 		 modelWieza = glm::rotate(modelWieza, -30.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+		 modelWieza = glm::rotate(modelWieza, wiezaRotate, glm::vec3(0.0f, 1.0f, 0.0f));
         modelWieza = glm::scale(modelWieza, glm::vec3(0.2f, 0.2f, 0.2f));	// It's a bit too big for our scene, so scale it down
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram.Program, "model"), 1, GL_FALSE, glm::value_ptr(modelWieza));
         wiezaModel.Draw(shaderProgram);
@@ -240,10 +243,15 @@ void do_movement()
     if (keys[GLFW_KEY_A]){
 		//modyfikacja wektora startPosition na polu X (+ lub -)
         startPosition = glm::vec3(startPosition.x - 0.1f, startPosition.y, 0.0f);
+		wiezaPosition = glm::vec3(wiezaPosition.x - 0.1f, wiezaPosition.y, wiezaPosition.z);
 	}
     if (keys[GLFW_KEY_D]){
 		//modyfikacja wektora startPosition na polu X (+ lub -)
 	//w		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
         startPosition = glm::vec3(startPosition.x + 0.1f, startPosition.y, 0.0f);
+		wiezaPosition = glm::vec3(wiezaPosition.x + 0.1f, wiezaPosition.y, wiezaPosition.z);
+	}
+	if (keys[GLFW_KEY_LEFT]) {
+		wiezaRotate = wiezaRotate + 0.1f;
 	}
 }
