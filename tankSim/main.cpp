@@ -13,6 +13,7 @@
 #include "shaderprogram.h"
 #include "Model.h"
 #include "Mesh.h"
+#include "Camera.h"
 const GLuint WIDTH = 1200, HEIGHT = 1000;
 
 GLuint VBO, VAO1;
@@ -23,18 +24,20 @@ void do_movement();
 glm::vec3 cameraPos   = glm::vec3(0.0f, 0.0f,  3.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
-bool keys[1024];
+//bool keys[1024];
 
 // Deltatime
 GLfloat deltaTime = 0.0f;	// Time between current frame and last frame
 GLfloat lastFrame = 0.0f;  	// Time of last frame
 
 glm::vec3 startPosition   = glm::vec3(2.0f, 0.0f, 0.0f);
+glm::vec3 wiezaPosition   = glm::vec3(2.0f, 0.0f, 0.8f);
 
 glm::mat4 tankObj;
 
 Shader shaderProgram();
 Model ourModel();
+bool keys[1024];
 
 int main (int argc, char** argv) {
 	// Init GLFW
@@ -64,6 +67,7 @@ int main (int argc, char** argv) {
 
 	Shader shaderProgram = Shader("vshader.txt","fshader.txt");
 		Model ourModel = Model("obiekty/tank5.obj");
+		Model wiezaModel = Model("wieza.obj");
 		// tutaj renderowanie
 	
 	//koordynaty wierzcholkow
@@ -133,9 +137,10 @@ int main (int argc, char** argv) {
 		glm::mat4 view;
         glm::mat4 projection;
 	//	model = glm::rotate(model, 40.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-		view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+	view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 		        view = glm::translate(view, glm::vec3(-5.0f, -3.0f, -7.0f));
 		view = glm::rotate(view, -45.3f, glm::vec3(1.0f, 0.0f, 0.0f));
+		//view = camera.GetViewMatrix();
         projection = glm::perspective(45.0f, 1200.0f / 1000.0f, 0.1f, 100.0f);
         // Get their uniform location
         GLint modelLoc = glGetUniformLocation(shaderProgram.Program, "model");
@@ -157,6 +162,18 @@ int main (int argc, char** argv) {
 				glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 				glDrawArrays(GL_TRIANGLES, 0, 6);
 			}
+			
+		glm::mat4 model;
+		model = glm::rotate(model, 90.0f, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::translate(model, glm::vec3(0.0f, (float)j, 0.0f));
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		
+		glm::mat4 model2;
+		model2 = glm::rotate(model2, 90.0f, glm::vec3(0.0f, 1.0f, 0.0f));
+		model2 = glm::translate(model2, glm::vec3(10.0f, 0.0f, (float)j));
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model2));
+		glDrawArrays(GL_TRIANGLES, 0, 6);
 		}
 		glBindVertexArray(0);
 		  glBindTexture(GL_TEXTURE_2D, 0); 
@@ -168,6 +185,14 @@ int main (int argc, char** argv) {
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram.Program, "model"), 1, GL_FALSE, glm::value_ptr(modelTank));
 		tankObj = modelTank;
         ourModel.Draw(shaderProgram);
+	//	glDrawArrays(GL_TRIANGLES, 0, 6);
+			glBindVertexArray(0);
+			glm::mat4 modelWieza;
+			modelWieza = glm::translate(modelWieza, wiezaPosition);
+		 modelWieza = glm::rotate(modelWieza, -30.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+        modelWieza = glm::scale(modelWieza, glm::vec3(0.2f, 0.2f, 0.2f));	// It's a bit too big for our scene, so scale it down
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram.Program, "model"), 1, GL_FALSE, glm::value_ptr(modelWieza));
+        wiezaModel.Draw(shaderProgram);
 	//	glDrawArrays(GL_TRIANGLES, 0, 6);
 			glBindVertexArray(0);
 		  glBindTexture(GL_TEXTURE_2D, 0);
@@ -204,11 +229,13 @@ void do_movement()
 		//	printf("%d", startPosition);
 //		cameraPos = glm::vec3(cameraPos.x,  cameraPos.y, cameraPos.z - 5.0f);
 			startPosition = glm::vec3(startPosition.x,  min(10.0f, (startPosition.y + 0.1f)), startPosition.z);
+			wiezaPosition = glm::vec3(wiezaPosition.x,  min(10.0f, (wiezaPosition.y + 0.1f)), wiezaPosition.z);
 	}
     if (keys[GLFW_KEY_S]){
 		//modyfikacja wektora startPosition na polu Z (+ lub -)
 //        cameraPos -= cameraSpeed * cameraFront;
 	startPosition = glm::vec3(startPosition.x,  startPosition.y - 0.1f, startPosition.z);
+	wiezaPosition = glm::vec3(wiezaPosition.x,  wiezaPosition.y - 0.1f, wiezaPosition.z);
 	}
     if (keys[GLFW_KEY_A]){
 		//modyfikacja wektora startPosition na polu X (+ lub -)
