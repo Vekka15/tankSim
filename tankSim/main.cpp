@@ -109,6 +109,24 @@ int main (int argc, char** argv) {
     SOIL_free_image_data(image);
     glBindTexture(GL_TEXTURE_2D, 0); // Unbind texture when done, so we won't accidentily mess up our texture.
 
+	// TEKSTURY drewna	
+    GLuint textureWood;
+    glGenTextures(1, &textureWood);
+    glBindTexture(GL_TEXTURE_2D, textureWood); // Wszystkie następujące operacje będą dotyczyły załadowanych obiektów
+    // Set the texture wrapping parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// Ustawiamy zeby teskturowanie sie powtarzało
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    // Ustawiamy filtrowanie tektur
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	int width1, height1;
+	// ładujemy obrazek do tekstury
+    unsigned char* image1 = SOIL_load_image("wood.jpg", &width1, &height1, 0, SOIL_LOAD_RGB);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width1, height1, 0, GL_RGB, GL_UNSIGNED_BYTE, image1);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    SOIL_free_image_data(image1);
+    glBindTexture(GL_TEXTURE_2D, 0); // Unbind texture when done, so we won't accidentily mess up our texture.
+
 	while (!glfwWindowShouldClose(window))
     {
         // sprawdza aktywacje eventow
@@ -153,6 +171,17 @@ int main (int argc, char** argv) {
 		}
 		glBindVertexArray(0);
 		glBindVertexArray(VAO);
+		glBindTexture(GL_TEXTURE_2D, textureWood);
+		glBindVertexArray(VAO);
+		for( GLuint j=0; j<2; j++ ){
+			
+				glm::mat4 model;
+				model = glm::translate(model, glm::vec3(50.0f, (float)j, 0.0f));
+				glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+				glDrawArrays(GL_TRIANGLES, 0, 6);
+		
+		}
+
 		//resetujemy tekstury żeby nie miec juz trawy
 		glBindTexture(GL_TEXTURE_2D, 0); 
 
