@@ -17,15 +17,8 @@
 #include "Camera.h"
 const GLuint WIDTH = 1200, HEIGHT = 1000;
 
-GLuint VBO, VAO1;
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 void do_movement();
-
-// Camera
-glm::vec3 cameraPos   = glm::vec3(0.0f, 0.0f,  3.0f);
-glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
-//bool keys[1024];
 
 // Deltatime
 GLfloat deltaTime = 0.0f;	// Time between current frame and last frame
@@ -40,10 +33,9 @@ Shader shaderProgram();
 Model ourModel();
 bool keys[1024];
 
+// inicjujące wartosci obrócenia czołgu i jego wieży
 GLfloat wiezaRotate = -30.0f;
 GLfloat tankRotate = -30.0f;
-
-
 
 int main (int argc, char** argv) {
 	// Init GLFW
@@ -71,12 +63,12 @@ int main (int argc, char** argv) {
 
     glEnable(GL_DEPTH_TEST);
 
+	//modele i shader
 	Shader shaderProgram = Shader("vshader.txt","fshader.txt");
-		Model ourModel = Model("obiekty/tank5.obj");
-		Model wiezaModel = Model("wieza.obj");
-		// tutaj renderowanie
-	
-	//koordynaty wierzcholkow
+	Model ourModel = Model("obiekty/tank5.obj");
+	Model wiezaModel = Model("wieza.obj");
+
+	//koordynaty wierzcholkow kafelkow
 	GLfloat vertices[] = {
         -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
          0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
@@ -85,37 +77,32 @@ int main (int argc, char** argv) {
         -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
         -0.5f, -0.5f, -0.5f,  0.0f, 0.0f
     };
-	 glm::vec3 cubePositions[] = {
-        glm::vec3( 0.0f,  0.0f,  0.0f),
-		 glm::vec3( 1.0f,  0.0f, -0.0f),
-		glm::vec3( 2.0f,  0.0f, -0.0f)
-    };
-	 GLuint VBO, VAO1;
-    glGenVertexArrays(1, &VAO1);
+	GLuint VBO, VAO;
+    glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     // Bind the Vertex Array Object first, then bind and set vertex buffer(s) and attribute pointer(s).
-    glBindVertexArray(VAO1);
+    glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-   // glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    // Position attribute
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); //wrzucamy wierzchołki do bufora VBO
+    // Ustawiamy atrybuty - 3 pierwsze bity na pozycje kafelkow pozostałe dwa na koordynaty tekstur
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)0);
     glEnableVertexAttribArray(0);
 	glVertexAttribPointer(2, 2, GL_FLOAT,GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(2); 
-	glBindVertexArray(0); // Unbind VAO1
-		// TEKSTURY
-	   // Load and create a texture 
+	glBindVertexArray(0); // Odłączamy VAO po ustawieniach
+
+	// TEKSTURY kafelków
     GLuint texture;
     glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture); // All upcoming GL_TEXTURE_2D operations now have effect on this texture object
+    glBindTexture(GL_TEXTURE_2D, texture); // Wszystkie następujące operacje będą dotyczyły załadowanych obiektów
     // Set the texture wrapping parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// Set texture wrapping to GL_REPEAT (usually basic wrapping method)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// Ustawiamy zeby teskturowanie sie powtarzało
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    // Set texture filtering parameters
+    // Ustawiamy filtrowanie tektur
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	int width, height;
+	// ładujemy obrazek do tekstury
     unsigned char* image = SOIL_load_image("grass.png", &width, &height, 0, SOIL_LOAD_RGB);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
     glGenerateMipmap(GL_TEXTURE_2D);
@@ -124,78 +111,74 @@ int main (int argc, char** argv) {
 
 	while (!glfwWindowShouldClose(window))
     {
-				
-
-			// Calculate deltatime of current frame
-        GLfloat currentFrame = glfwGetTime();
-        deltaTime = currentFrame - lastFrame;
-        lastFrame = currentFrame;
-        // Check if any events have been activiated (key pressed, mouse moved etc.) and call corresponding response functions
+        // sprawdza aktywacje eventow
         glfwPollEvents();
+		// odpalamy funkcje poruszania i przeliczamy wszystkie wartosci
         do_movement();
-        // Render
-        // Clear the colorbuffer
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+
+        glClearColor(0.0f, 1.0f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glBindVertexArray(0); // Unbind VAO1
-		glBindTexture(GL_TEXTURE_2D, texture); //przypisanie tekstur
+		glBindVertexArray(0);
+		glBindTexture(GL_TEXTURE_2D, texture); //przypisanie tekstur - od tej pory wszystkie nowo stworzone obiekty będą miały tą teksture
 		shaderProgram.Use();
+		//ustawianie środowiska
 		glm::mat4 view;
         glm::mat4 projection;
-	//	model = glm::rotate(model, 40.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-	view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-		        view = glm::translate(view, glm::vec3(-30.0f, -5.0f, -7.0f));
+		//ustawienia widoku
+		view = glm::lookAt(glm::vec3(0.0f, 0.0f,  3.0f), glm::vec3(0.0f, 0.0f, 2.0f), glm::vec3(0.0f, 1.0f,  0.0f));
+		view = glm::translate(view, glm::vec3(-30.0f, -5.0f, -7.0f));
 		view = glm::rotate(view, -45.3f, glm::vec3(1.0f, 0.0f, 0.0f));
-		//view = camera.GetViewMatrix();
+		//ustawienia projekcji
         projection = glm::perspective(45.0f, 1200.0f / 1000.0f, 0.1f, 100.0f);
-        // Get their uniform location
+        //bierzemy uniformy MVC
         GLint modelLoc = glGetUniformLocation(shaderProgram.Program, "model");
         GLint viewLoc = glGetUniformLocation(shaderProgram.Program, "view");
         GLint projLoc = glGetUniformLocation(shaderProgram.Program, "projection");
-	//		 glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        // Pass the matrices to the shader
+		
+		//ładujemy ustawienia widoku i projekcji
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-        // Note: currently we set the projection matrix each frame, but since the projection matrix rarely changes it's often best practice to set it outside the main loop only once.
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
-		glBindVertexArray(VAO1);
+
+		//budujemy ziemie
+		glBindVertexArray(VAO);
 		for( GLuint j=0; j<30; j++ ){
 			for (GLuint i = 0; i < 60; i++)
 			{
-				// Calculate the model matrix for each object and pass it to shader before drawing
 				glm::mat4 model;
 				model = glm::translate(model, glm::vec3((float)i, (float)j, 0.0f));
-				//model = glm::rotate(model, 30.0f, glm::vec3(1.0f, 0.0f, 0.0f));
 				glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 				glDrawArrays(GL_TRIANGLES, 0, 6);
 			}
 		
 		}
 		glBindVertexArray(0);
-		  glBindTexture(GL_TEXTURE_2D, 0); 
+		glBindVertexArray(VAO);
+		//resetujemy tekstury żeby nie miec juz trawy
+		glBindTexture(GL_TEXTURE_2D, 0); 
 
-			glm::mat4 modelTank;
-			modelTank = glm::translate(modelTank, startPosition);
-		 modelTank = glm::rotate(modelTank, -30.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-		 modelTank = glm::rotate(modelTank, tankRotate, glm::vec3(0.0f, 1.0f, 0.0f));
-        modelTank = glm::scale(modelTank, glm::vec3(0.2f, 0.2f, 0.2f));	// It's a bit too big for our scene, so scale it down
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram.Program, "model"), 1, GL_FALSE, glm::value_ptr(modelTank));
-		tankObj = modelTank;
+		//tworzymy czołg
+		glm::mat4 modelTank;
+		modelTank = glm::translate(modelTank, startPosition);
+		modelTank = glm::rotate(modelTank, -30.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+		modelTank = glm::rotate(modelTank, tankRotate, glm::vec3(0.0f, 1.0f, 0.0f));
+        modelTank = glm::scale(modelTank, glm::vec3(0.2f, 0.2f, 0.2f));
+		glUniformMatrix4fv(glGetUniformLocation(shaderProgram.Program, "model"), 1, GL_FALSE, glm::value_ptr(modelTank));
         ourModel.Draw(shaderProgram);
-	//	glDrawArrays(GL_TRIANGLES, 0, 6);
-			glBindVertexArray(0);
-			glm::mat4 modelWieza;
-			modelWieza = glm::translate(modelWieza, wiezaPosition);
-		 modelWieza = glm::rotate(modelWieza, -30.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-		 modelWieza = glm::rotate(modelWieza, wiezaRotate, glm::vec3(0.0f, 1.0f, 0.0f));
-        modelWieza = glm::scale(modelWieza, glm::vec3(0.2f, 0.2f, 0.2f));	// It's a bit too big for our scene, so scale it down
+		glBindVertexArray(0);
+
+		//tworzymy wieże
+		glm::mat4 modelWieza;
+		modelWieza = glm::translate(modelWieza, wiezaPosition);
+		modelWieza = glm::rotate(modelWieza, -30.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+		modelWieza = glm::rotate(modelWieza, wiezaRotate, glm::vec3(0.0f, 1.0f, 0.0f));
+        modelWieza = glm::scale(modelWieza, glm::vec3(0.2f, 0.2f, 0.2f));
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram.Program, "model"), 1, GL_FALSE, glm::value_ptr(modelWieza));
         wiezaModel.Draw(shaderProgram);
-	//	glDrawArrays(GL_TRIANGLES, 0, 6);
-			glBindVertexArray(0);
-		  glBindTexture(GL_TEXTURE_2D, 0);
+		glBindVertexArray(0);
+		glBindTexture(GL_TEXTURE_2D, 0);
 		glfwSwapBuffers(window);
 	}
-	glDeleteVertexArrays(1, &VAO1);
+	glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
     // Terminate GLFW, clearing any resources allocated by GLFW.
     glfwTerminate();
@@ -218,37 +201,23 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 void do_movement()
 {
-    // Camera controls
-    GLfloat cameraSpeed = 5.0f * deltaTime;
+	// poruszanie czołgu w przód i w tył
     if (keys[GLFW_KEY_W]){
-    //    cameraPos += cameraSpeed * cameraFront;
-		//modyfikacja wektora startPosition na polu Z (+ lub -)
-		//	printf("%d", startPosition);
-//		cameraPos = glm::vec3(cameraPos.x,  cameraPos.y, cameraPos.z - 5.0f);
-		//	startPosition = glm::vec3(startPosition.x,  startPosition.y + 0.01f, startPosition.z);
-		//	wiezaPosition = glm::vec3(wiezaPosition.x,  min(10.0f, (wiezaPosition.y + 0.01f)), wiezaPosition.z);
 		startPosition = glm::vec3(startPosition.x + 0.005f * cosf(tankRotate),  startPosition.y + 0.005f * sinf(tankRotate), startPosition.z );
 		wiezaPosition = glm::vec3(startPosition.x,  startPosition.y, wiezaPosition.z);
 	}
     if (keys[GLFW_KEY_S]){
-		//modyfikacja wektora startPosition na polu Z (+ lub -)
-//        cameraPos -= cameraSpeed * cameraFront;
-	startPosition = glm::vec3(startPosition.x - 0.005f * cosf(tankRotate),  startPosition.y - 0.005f * sinf(tankRotate), startPosition.z );
+		startPosition = glm::vec3(startPosition.x - 0.005f * cosf(tankRotate),  startPosition.y - 0.005f * sinf(tankRotate), startPosition.z );
 		wiezaPosition = glm::vec3(startPosition.x,  startPosition.y, wiezaPosition.z);
 	}
+	// oblsuga skręcania czołgu (obracania)
     if (keys[GLFW_KEY_A]){
-		//modyfikacja wektora startPosition na polu X (+ lub -)
-       // startPosition = glm::vec3(startPosition.x - 0.01f, startPosition.y, 0.0f);
-		//wiezaPosition = glm::vec3(wiezaPosition.x - 0.01f, wiezaPosition.y, wiezaPosition.z);
 		tankRotate = tankRotate + 0.01f;
 	}
     if (keys[GLFW_KEY_D]){
-		//modyfikacja wektora startPosition na polu X (+ lub -)
-	//w		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-     //   startPosition = glm::vec3(startPosition.x + 0.01f, startPosition.y, 0.0f);
-	//	wiezaPosition = glm::vec3(wiezaPosition.x + 0.01f, wiezaPosition.y, wiezaPosition.z);
 		tankRotate = tankRotate - 0.01f;
 	}
+	//obsługa kontroli obrozu wieży
 	if (keys[GLFW_KEY_LEFT]) {
 		wiezaRotate = wiezaRotate + 0.01f;
 	}
