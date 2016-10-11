@@ -121,7 +121,7 @@ int main (int argc, char** argv) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	int width1, height1;
 	// ładujemy obrazek do tekstury
-    unsigned char* image1 = SOIL_load_image("wood.jpg", &width1, &height1, 0, SOIL_LOAD_RGB);
+    unsigned char* image1 = SOIL_load_image("woodTex.png", &width1, &height1, 0, SOIL_LOAD_RGB);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width1, height1, 0, GL_RGB, GL_UNSIGNED_BYTE, image1);
     glGenerateMipmap(GL_TEXTURE_2D);
     SOIL_free_image_data(image1);
@@ -137,8 +137,10 @@ int main (int argc, char** argv) {
         glClearColor(0.0f, 1.0f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glBindVertexArray(0);
-		glBindTexture(GL_TEXTURE_2D, texture); //przypisanie tekstur - od tej pory wszystkie nowo stworzone obiekty będą miały tą teksture
+	//	glBindTexture(GL_TEXTURE_2D, texture); //przypisanie tekstur - od tej pory wszystkie nowo stworzone obiekty będą miały tą teksture
 		shaderProgram.Use();
+		glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture);
 		//ustawianie środowiska
 		glm::mat4 view;
         glm::mat4 projection;
@@ -171,17 +173,39 @@ int main (int argc, char** argv) {
 		}
 		glBindVertexArray(0);
 		glBindTexture(GL_TEXTURE_2D, 0);
-		glBindVertexArray(VAO);
 		glBindTexture(GL_TEXTURE_2D, textureWood);
+		glBindVertexArray(VAO);
 		shaderProgram.Use();
-		for( GLuint j=0; j<15; j++ ){
+
+
+		for( GLuint j=0; j<60; j++ ){
 			
 				glm::mat4 model;
-				model = glm::translate(model, glm::vec3(30.0f, (float)j, 0.0f));
+				model = glm::translate(model, glm::vec3((float)j, 30.0f, -0.5f));
+				model = glm::rotate(model, -30.0f, glm::vec3(1.0f, 0.0f, 0.0f));
 				glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 				glDrawArrays(GL_TRIANGLES, 0, 6);
 		
 		}
+
+		for( GLuint j=0; j<15; j++ ){
+				glm::mat4 model;
+				model = glm::translate(model, glm::vec3(27.0f, (float)j, 0.0f));
+				model = glm::rotate(model, -29.8f, glm::vec3(0.0f, 1.0f, 0.0f));
+				glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+				glDrawArrays(GL_TRIANGLES, 0, 6);
+		
+		}
+
+		for( GLuint j=20; j<30; j++ ){
+				glm::mat4 model;
+				model = glm::translate(model, glm::vec3(27.0f, (float)j, 0.0f));
+				model = glm::rotate(model, -29.8f, glm::vec3(0.0f, 1.0f, 0.0f));
+				glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+				glDrawArrays(GL_TRIANGLES, 0, 6);
+		
+		}
+
 
 		//resetujemy tekstury żeby nie miec juz trawy
 		glBindTexture(GL_TEXTURE_2D, 0); 
@@ -233,8 +257,13 @@ void do_movement()
 {
 	// poruszanie czołgu w przód i w tył
     if (keys[GLFW_KEY_W]){
-		startPosition = glm::vec3(startPosition.x + 0.005f * cosf(tankRotate),  startPosition.y + 0.005f * sinf(tankRotate), startPosition.z );
-		wiezaPosition = glm::vec3(startPosition.x,  startPosition.y, wiezaPosition.z);
+		if ((startPosition.x <= 27.4f && startPosition.x >= 27.2f) && (startPosition.y <= 15.0f || startPosition.y >= 20.0f)) {
+			startPosition.x = startPosition.x + 0.1;
+			wiezaPosition.x = wiezaPosition.x + 0.1;
+		}else{
+			startPosition = glm::vec3(startPosition.x + 0.005f * cosf(tankRotate),  startPosition.y + 0.005f * sinf(tankRotate), startPosition.z );
+			wiezaPosition = glm::vec3(startPosition.x,  startPosition.y, wiezaPosition.z);
+		}
 	}
     if (keys[GLFW_KEY_S]){
 		startPosition = glm::vec3(startPosition.x - 0.005f * cosf(tankRotate),  startPosition.y - 0.005f * sinf(tankRotate), startPosition.z );
